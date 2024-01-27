@@ -77,4 +77,8 @@ class FileStorage:
                 return obj
         return None
 
+    def count(self, cls=None):
+        """Counts objects in the database"""
+        my_dict = self.all(cls)
+        return len(my_dict)
 
