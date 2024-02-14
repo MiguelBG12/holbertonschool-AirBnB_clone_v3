@@ -32,3 +32,19 @@ def get_cities(city_id):
         abort(404)
 
     return jsonify(city.to_dict())
+
+
+@app_views.route('/cities/<city_id>',
+                 methods=['DELETE'], strict_slashes=False)
+def delete_cities(city_id):
+    """Delete a city object"""
+
+    list_cites = []
+    city = storage.get(City, city_id)
+    if not city:
+        abort(404)
+
+    storage.delete(city)
+    storage.save()
+
+    return make_response(jsonify({}, 200))
