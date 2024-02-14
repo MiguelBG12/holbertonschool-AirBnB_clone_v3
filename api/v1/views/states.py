@@ -39,23 +39,22 @@ def delete_state(state_id):
     return make_response(jsonify({}, 200))
 
 
-@app_views.route("/states/", methods=["POST"])
-def post_state():
-    """Create a state"""
+@app_views.route("/states", methods=["POST"], strict_slashes=False)
+def create_state():
+    """Creates a new State"""
     data = request.get_json()
 
-    if not data:
-        return jsonify({"error": "No JSON provided"}), 400
+    if data is None:
+        return jsonify({"error": "Not a JSON"}), 400
 
-    if 'name' not in data or not data['name']:
-        return jsonify({"error": "Missing or empty 'name' in JSON"}), 400
+    if 'name' not in data:
+        return jsonify({"error": "Missing name"}), 400
 
-    try:
-        instance = State(**data)
-        instance.save()
-        return jsonify(instance.to_dict()), 201
-    except Exception as e:
-        return jsonify({"error": f"Invalid JSON data: {e}"}), 400
+    new_state = State(**data)
+    new_state.save()
+
+    return jsonify(new_state.to_dict()), 201
+
 
 
 
