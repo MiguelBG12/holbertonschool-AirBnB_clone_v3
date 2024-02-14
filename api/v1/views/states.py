@@ -43,7 +43,7 @@ def delete_state(state_id):
 def post_state():
     """Create a state"""
     if not request.get_json():
-        abort(400, description="Note a JSON")
+        abort(400, description="Not a JSON")
 
     if 'name' not in request.get_json():
         abort(400, description="Missing name")
@@ -65,11 +65,12 @@ def update_state(state_id):
     if not request.get_json():
         abort(400, description="Not a JSON")
 
-    ignore = ['id', 'created_at', 'updated_at']
-
     data = request.get_json()
+
     for key, value in data.items():
-        if key not in ignore:
+        if key != 'id' and key != 'created_at' and key != 'updated_at':
             setattr(state, key, value)
+
     storage.save()
-    return make_response(jsonify(state.to_dict()), 200)
+
+    return jsonify(state.to_dict()), 200
