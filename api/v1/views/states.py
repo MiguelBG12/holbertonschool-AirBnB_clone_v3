@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Objects to handle all default REStfull APi actions for states"""
 from api.v1.views import app_views
-from flask import jsonify, abort, make_response
+from flask import jsonify, abort, make_response, request
 from models.state import State
 from models import storage
 
@@ -37,3 +37,18 @@ def delete_state(state_id):
     storage.save()
 
     return make_response(jsonify({}, 200))
+
+
+@app_views.route("/states/", methods=["POST"])
+def post_state():
+    """Create a state"""
+    if not request.get_json():
+        abort(400, description="Note a JSON")
+
+    if 'name' not in request.get_json():
+        abort(400, description="Missing name")
+
+    data = request.get_json()
+    instance = State(**data)
+    instance.save()
+    return make_response(jsonify(instance.to_dict()), 201)
