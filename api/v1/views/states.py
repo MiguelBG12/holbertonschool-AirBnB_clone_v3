@@ -53,23 +53,20 @@ def createStates():
     return "Not a JSON", 400
 
 
-@app_views.route("/states/<state_id>", methods=["PUT"])
-def update_state(state_id):
-    """Update states objects"""
-    state = storage.get(State, state_id)
-
-    if not state:
-        abort(404)
-
-    if not request.get_json():
-        abort(400, description="Not a JSON")
-
-    data = request.get_json()
-
-    for key, value in data.items():
-        if key != 'id' and key != 'created_at' and key != 'updated_at':
-            setattr(state, key, value)
-
-    storage.save()
-
-    return jsonify(state.to_dict()), 200
+@app_views.route("/states/<state_id>", methods=["PUT"], strict_slashes=False)
+def updateState(state_id):
+    """Updates a State object"""
+    states = storage.get(State, state_id)
+    gitignore = ["id", "created_at", "updated_at"]
+    try:
+        data = request.get_json()
+        for k, v in data.items():
+            if k not in gitignore:
+                setattr(states, k, v)
+        storage.save()
+        return jsonify(states.to_dict()), 200
+    except Exception:
+        if states is None:
+            abort(404)
+        if not request.is_json:
+            return "Not a JSON", 400
