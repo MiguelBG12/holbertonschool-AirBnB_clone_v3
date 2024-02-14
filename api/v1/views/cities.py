@@ -50,43 +50,39 @@ def delete_cities(city_id):
     return make_response(jsonify({}, 200))
 
 
-@app_views.route('/states/<state_id>/cities',
-                 methods=['POST'], strict_slashes=False)
-def post_cities(state_id):
-    """create a city object"""
-
-    list_cites = []
-    city = storage.get(State, state_id)
-    if not city:
+@app_views.route("/states/<state_id>/cities", methods=["POST"],
+                 strict_slashes=False)
+def createCity(state_id):
+    """Creates a State"""
+    state = storage.get(State, state_id)
+    if state is None:
         abort(404)
-    if not request.get_json():
-        abort(400, description="Not a JSON")
-    if 'name' not in request.get_json():
-        abort(400, description="Missing name")
-
-    data = request.get_json()
-    instance = City(**data)
-    instance.state_id = state_id
-    instance.save()
-    return make_response(jsonify(instance.to_dict()), 201)
-
-
-@app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
-def put_cities(city_id):
-    """update a city object"""
-    city = storage.get(City, city_id)
-    if not city:
-        abort(404)
-
-    if not request.get_json():
-        abort(400, description="Not a JSON")
-
-    ignore = ['id', 'state_id', 'created_at', 'updated_at']
-
-    data = request.get_json()
-    for key, value in data.items():
-        if key not in ignore:
-            setattr(city, key, value)
+    if request.is_json:
+        data = request.get_json()
+        if "name" not in data:
+            return "Missing name", 400
+        data["state_id"] = state_id
+        objNew = City(**data)
+        storage.new(objNew)
         storage.save()
+        return jsonify(objNew.to_dict()), 201
+    return "Not a JSON", 400
 
-    return make_response(jsonify(city.to_dict()), 200)
+
+@app_views.route("cities/<city_id>", methods=["PUT"], strict_slashes=False)
+def updateCity(city_id):
+    """Updates a State object"""
+    city = storage.get(City, city_id)
+    gitignore = ["id", "created_at", "updated_at", "state_id"]
+    try:
+        data = request.get_json()
+        for k, v in data.items():
+            if k not in gitignore:
+                setattr(city, k, v)
+        storage.save()
+        return jsonify(city.to_dict()), 200
+    except Exception:
+        if city is None:
+            abort(404)
+        if not request.is_json:
+            return "Not a JSON", 400
