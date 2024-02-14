@@ -40,22 +40,17 @@ def delete_state(state_id):
 
 
 @app_views.route("/states", methods=["POST"], strict_slashes=False)
-def create_state():
-    """Creates a new State"""
-    data = request.get_json()
-
-    if data is None:
-        return jsonify({"error": "Not a JSON"}), 400
-
-    if 'name' not in data:
-        return jsonify({"error": "Missing name"}), 400
-
-    new_state = State(**data)
-    new_state.save()
-
-    return jsonify(new_state.to_dict()), 201
-
-
+def createStates():
+    """Creates a State"""
+    if request.is_json:
+        data = request.get_json()
+        if "name" not in data:
+            return "Missing name", 400
+        objNew = State(**data)
+        storage.new(objNew)
+        storage.save()
+        return jsonify(objNew.to_dict()), 201
+    return "Not a JSON", 400
 
 
 @app_views.route("/states/<state_id>", methods=["PUT"])
