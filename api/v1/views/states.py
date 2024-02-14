@@ -50,10 +50,12 @@ def post_state():
     if 'name' not in data or not data['name']:
         return jsonify({"error": "Missing or empty 'name' in JSON"}), 400
 
-    instance = State(**data)
-    instance.save()
-
-    return jsonify(instance.to_dict()), 201
+    try:
+        instance = State(**data)
+        instance.save()
+        return jsonify(instance.to_dict()), 201
+    except Exception as e:
+        return jsonify({"error": f"Invalid JSON data: {e}"}), 400
 
 
 
