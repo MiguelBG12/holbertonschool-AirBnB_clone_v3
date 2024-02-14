@@ -47,8 +47,8 @@ def post_state():
 
     data = request.get_json()
 
-    if 'name' not in data:
-        abort(400, description="Missing name")
+    if 'name' not in data or not data['name']:
+        abort(400, description="Missing or empty name")
 
     instance = State(**data)
     instance.save()
