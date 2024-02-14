@@ -15,3 +15,13 @@ def get_users():
         list_users.append(user.to_dict())
     return jsonify(list_users)
 
+
+@app_views.route('/users/<user_id>',
+                 methods=['GET'], strict_slashes=False)
+def get_user(user_id):
+    """Retrives users of objects"""
+    user = storage.get(User, user_id)
+    if not user:
+        abort(404)
+
+    return jsonify(user.to_dict())
